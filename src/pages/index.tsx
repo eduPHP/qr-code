@@ -2,13 +2,16 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { Inter } from '@next/font/google';
 import QRCode from 'qrcode';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { TwitterPicker } from 'react-color';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
   const [content, setContent] = useState<string>('');
   const [dataUrl, setDataUrl] = useState<string>('');
+  const [light, setLight] = useState<string>('#FFF');
+  const [dark, setDark] = useState<string>('#000');
 
   const generateQR = async () => {
     if (! content.length) {
@@ -22,14 +25,27 @@ export default function Home() {
         width: 1000,
         scale: 1,
         color: {
-          dark: '#fc7c47',
-          light: '#374051'
+          dark,
+          light
         }
       }));
     } catch (err) {
       console.error(err);
     }
   };
+
+  const handleLightColor = (color: { hex: string }) => {
+    setLight(color.hex);
+  };
+
+  const handleDarkColor = (color: { hex: string }) => {
+    setDark(color.hex);
+  };
+
+  useEffect(() => {
+    generateQR()
+  }, [dark, light, dataUrl])
+
 
   return (
     <>
@@ -54,6 +70,23 @@ export default function Home() {
           <button onClick={generateQR} className="px-6 py-4 rounded bg-green-900 font-bold uppercase">
             Generate!
           </button>
+        </div>
+        <div className='flex mt-4 gap-4'>
+          <div>
+            <span className='block mb-2'>Background Color</span>
+            <TwitterPicker
+              color={ light }
+              onChangeComplete={ handleLightColor }
+            />
+          </div>
+          
+          <div>
+            <span className='block mb-2'>Code Color</span>
+            <TwitterPicker
+              color={ dark }
+              onChangeComplete={ handleDarkColor }
+            />
+          </div>
         </div>
         {dataUrl.length ? (
           <div className="mt-8 flex flex-col items-center">
